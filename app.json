@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Nudge",
+    "slug": "nudge",
+    "description": "Small steps. No pressure. A calm companion for the moments when starting feels impossible.",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "nudge",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "primaryColor": "#2E6B5E",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.nudge.mvp"
+    },
+    "android": {
+      "package": "app.nudge.mvp",
+      "adaptiveIcon": {
+        "backgroundColor": "#FBF8F4",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 150,
+          "resizeMode": "contain",
+          "backgroundColor": "#FBF8F4",
+          "dark": {
+            "backgroundColor": "#131210"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
