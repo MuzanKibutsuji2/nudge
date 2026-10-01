@@ -93,6 +93,10 @@ function RootShell() {
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
         <Stack.Screen name="sit-with-me" />
+        <Stack.Screen
+          name="how-it-works"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
       </Stack>
     </DeviceFrame>
   );

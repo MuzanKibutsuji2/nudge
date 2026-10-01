@@ -53,6 +53,15 @@ export default function Onboarding() {
       footer={
         <View>
           <Button title={current.cta} onPress={next} />
+          {step === LAST_STEP ? (
+            <Button
+              title={onboarding.howItWorks}
+              variant="quiet"
+              size="md"
+              onPress={() => router.push('/how-it-works')}
+              style={{ marginTop: theme.spacing.xs }}
+            />
+          ) : null}
           {step === 2 || step === 3 ? (
             <Button
               title={onboarding.skip}

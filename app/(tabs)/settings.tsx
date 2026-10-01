@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Card } from '../../components/Card';
 import { FadeIn } from '../../components/FadeIn';
 import { Logo } from '../../components/Logo';
+import { PalettePicker } from '../../components/PalettePicker';
 import { Screen } from '../../components/Screen';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import {
@@ -78,6 +79,12 @@ export default function SettingsScreen() {
               ]}
             />
           </SettingsBlock>
+          <SettingsBlock label={copy.colour} description={copy.colourNote}>
+            <PalettePicker
+              value={settings.accent}
+              onChange={(accent) => updateSettings({ accent })}
+            />
+          </SettingsBlock>
           <SettingsToggle
             label={copy.reduceMotion}
             description={copy.reduceMotionNote}
@@ -117,6 +124,15 @@ export default function SettingsScreen() {
             description="Light taps on buttons."
             value={settings.haptics}
             onChange={(value) => updateSettings({ haptics: value })}
+            last
+          />
+        </SettingsGroup>
+
+        <SettingsGroup title={copy.help}>
+          <SettingsRow
+            label={copy.howItWorks}
+            description={copy.howItWorksNote}
+            onPress={() => router.push('/how-it-works')}
             last
           />
         </SettingsGroup>

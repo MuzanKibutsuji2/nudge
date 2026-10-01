@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test \".test-build/tests/*.test.js\""
+    "test": "tsc -p tsconfig.test.json && node --test \".test-build/tests/*.test.js\"",
+    "export:web": "expo export --platform web --output-dir dist",
+    "test:e2e": "node tests/e2e/smoke.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@types/node": "^26.6.3",
     "@types/react": "~19.2.2",
+    "jsdom": "^30.1.1",
     "typescript": "~6.0.3"
   }
 }

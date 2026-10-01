@@ -31,6 +31,7 @@ npm run android    # Android emulator
 npm run web        # browser (shown inside a phone frame)
 npm test           # unit tests for the pure logic
 npm run typecheck  # tsc --noEmit
+npm run export:web && npm run test:e2e   # the whole journey, end to end
 ```
 
 To ship a real build: `npx eas build -p ios` / `-p android`. The app has no native custom
@@ -87,8 +88,15 @@ ranking. Underneath, *"What helps you start"* describes patterns once there are 
 three sessions to describe: *5–10 minute sessions · 6–8 PM · Opening your Physics textbook.*
 Descriptive, never prescriptive.
 
-**Settings** — name, Light/Dark/System, default session length (5/10/15), sounds, haptics,
-*Clear all local data* behind a confirmation screen, and an About page.
+**Settings** — name, Light/Dark/System, **six accent palettes** (Forest, Blush, Lavender,
+Ocean, Clay, Ink — each one named as well as coloured, and each checked for AA contrast in
+both light and dark), default session length (5/10/15), sounds, haptics, *Clear all local
+data* behind a confirmation screen, and an About page.
+
+**How Nudge works** — a plain-English explainer, reachable from Home, Settings and the last
+onboarding step. It walks the loop step by step and, in particular, spells out what the
+choices at the end of a session actually do — "Keep going on this" stays on the same thing
+rather than moving you to a new task. Those buttons say so on their face too.
 
 **Sit With Me** — a placeholder for a future "study alongside someone silently" feature.
 Opt-in, clearly labelled **Coming later**, and honest that nothing is connected yet.
@@ -107,14 +115,17 @@ app/                      expo-router file routes
   focus.tsx  done.tsx     the timer and the two endings
   wall.tsx  break.tsx     wall mode, break timer
   task/[id].tsx           task detail + "make this smaller"
+  how-it-works.tsx        the instructions
   add-task.tsx  clear-data.tsx  sit-with-me.tsx  +not-found.tsx
 
 components/               ~20 reusable pieces: Button, Card, ChoiceCard, MoodCard,
                           Timer, TaskCard, Screen, Header, Text, Chip, EmptyState,
-                          SegmentedControl, FadeIn, Logo, TabBar, ErrorFallback…
+                          SegmentedControl, PalettePicker, FadeIn, Logo, TabBar,
+                          ErrorFallback…
 
 constants/
-  theme.ts                palette (light + dark), spacing, radii, type scale, shadows
+  palette.ts              neutrals + the six accents, contrast-tested in plain node
+  theme.ts                spacing, radii, type scale, shadows, buildTheme()
   copy.ts                 every user-facing string, in one reviewable file
 
 lib/
@@ -128,6 +139,7 @@ lib/
 
 types/                    Task, FocusSession, CheckIn, Settings
 tests/                    node:test suites over the pure logic
+  e2e/                    jsdom harness + smoke test against the exported build
 scripts/make-brand-assets.mjs   regenerates the icon set from the logo geometry
 ```
 
@@ -149,6 +161,10 @@ terminates at something physical. `planFor()` goes through a `MicroActionProvide
 swapping in a server or an on-device model later means implementing one interface, with the
 local engine as the fallback. No screen changes.
 
+**Theming** — `buildTheme(scheme, accent)` composes one of six accent token sets over the
+warm neutrals, and tints the focus/wall background faintly with the chosen hue. Swapping
+palettes is a single setting; nothing in the screens knows which colour is active.
+
 **Timers survive everything.** A session is persisted the moment it starts, with its planned
 length and accumulated pause time. Close the app mid-session and Home offers to pick it back
 up; past a 15-minute grace window it's quietly dropped rather than resumed into nonsense.
@@ -159,18 +175,20 @@ Delete a task you're focusing on and the session keeps its own copy of the title
 ## Testing
 
 ```bash
-npm test
+npm test                                 # 31 unit tests
+npm run export:web && npm run test:e2e   # ~90 end-to-end checks
 ```
 
-25 `node:test` cases over the parts where correctness actually matters: the shrinking ladder
+The unit tests cover the parts where correctness actually matters: the shrinking ladder
 (monotonic, terminating, ends somewhere physical), domain detection, nonsense input
-(empty strings, emoji, 400 characters) never throwing, the provider fallback, session
-timing including pauses and overruns, pattern summaries, and the phrasing helpers.
+(empty strings, emoji, 400 characters) never throwing, the provider fallback, session timing
+including pauses and overruns, pattern summaries, phrasing, and a contrast audit that fails
+the build if any accent drops below WCAG AA on any surface in either scheme.
 
-The full journey — fresh install → onboarding → Home → I'm stuck → feeling → task → make it
-smaller → 5-minute session → finish → Today → History → Settings → relaunch — was also
-exercised end-to-end against the exported web build, including interrupted sessions,
-corrupted storage, dark mode and clearing all data.
+The end-to-end test drives the real exported bundle in jsdom — the same JavaScript that runs
+on a phone — through the full journey: fresh install → onboarding → Home → I'm stuck →
+feeling → task → make it smaller twice → one action → 5-minute session → pause → finish
+early → Today → History → switch palette → relaunch with saved data.
 
 ---
 

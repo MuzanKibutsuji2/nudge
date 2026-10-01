@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const scheme: ColorScheme =
     settings.theme === 'system' ? ((system as ColorScheme) ?? 'light') : settings.theme;
 
-  const theme = useMemo(() => buildTheme(scheme), [scheme]);
+  const theme = useMemo(() => buildTheme(scheme, settings.accent), [scheme, settings.accent]);
   const reduceMotion = systemReduceMotion || settings.reduceMotion;
 
   useEffect(() => {

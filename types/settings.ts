@@ -4,6 +4,15 @@
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
+/**
+ * Accent palettes. Ids are stable (they are written to storage); the human
+ * labels and the actual colours live in constants/palette.ts.
+ */
+export type AccentId = 'forest' | 'blush' | 'lavender' | 'ocean' | 'clay' | 'ink';
+
+/** Display order in Settings. */
+export const ACCENT_IDS: AccentId[] = ['forest', 'blush', 'lavender', 'ocean', 'clay', 'ink'];
+
 export type SessionLength = 5 | 10 | 15;
 
 export const SESSION_LENGTHS: SessionLength[] = [5, 10, 15];
@@ -26,6 +35,8 @@ export interface Settings {
   name: string;
   focusAreas: string[];
   theme: ThemePreference;
+  /** Accent colour used across the app. */
+  accent: AccentId;
   defaultSessionMinutes: SessionLength;
   sounds: boolean;
   haptics: boolean;
@@ -38,6 +49,7 @@ export const DEFAULT_SETTINGS: Settings = {
   name: '',
   focusAreas: [],
   theme: 'system',
+  accent: 'forest',
   defaultSessionMinutes: 5,
   sounds: true,
   haptics: true,

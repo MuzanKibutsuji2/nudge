@@ -35,6 +35,21 @@ export default function Home() {
       <FadeIn>
         <View style={styles.brandRow}>
           <Logo size={26} />
+          <Pressable
+            onPress={() => {
+              tap();
+              router.push('/how-it-works');
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="How Nudge works"
+            hitSlop={12}
+            style={({ pressed }) => [styles.help, { opacity: pressed ? 0.6 : 1 }]}
+          >
+            <Feather name="help-circle" size={16} color={theme.colors.textSubtle} />
+            <Text variant="caption" tone="subtle" style={{ marginLeft: 6 }}>
+              {home.howItWorks}
+            </Text>
+          </Pressable>
         </View>
         <Text variant="title" accessibilityRole="header" style={{ marginTop: theme.spacing.lg }}>
           {greeting(new Date(), settings.name)}
@@ -196,7 +211,8 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  help: { flexDirection: 'row', alignItems: 'center' },
   resumeActions: { flexDirection: 'row', alignItems: 'center' },
   wallRow: {
     flexDirection: 'row',

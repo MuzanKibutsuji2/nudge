@@ -40,6 +40,7 @@ export const onboarding = {
     },
   ],
   skip: 'Skip',
+  howItWorks: 'Show me how it works',
   namePlaceholder: 'Your name',
   privacyNote: 'Everything you write stays on this device.',
 };
@@ -52,6 +53,7 @@ export const home = {
     break: { emoji: '⏸', title: 'I need a break', body: 'I need to step away for a moment.' },
   },
   wallEntry: "I'm staring at the wall.",
+  howItWorks: 'How it works',
   winsTitle: "Today's small wins",
   winsEmpty: 'Nothing yet today. That’s okay.',
   footer: "You don't have to do everything today.",
@@ -78,6 +80,7 @@ export const stuck = {
   question: "What's closest to how you feel?",
   note: 'No wrong answer. This is just for you.',
   wallEntry: "I'm staring at the wall.",
+  howItWorks: 'How it works',
 };
 
 export const taskPrompt = {
@@ -131,13 +134,21 @@ export const finished = {
       : `You made it through ${minutes} minutes.`,
   fullQuestion: 'What would feel right?',
   options: {
-    keepGoing: 'Keep going',
+    keepGoing: 'Keep going on this',
     oneMore: 'Do one more tiny thing',
-    another: (m: number) => `Another ${m} minutes`,
+    another: (m: number) => `Another ${m} minutes on this`,
     takeBreak: 'Take a break',
     finishHere: 'Finish here',
     doneForNow: "I'm done for now",
   },
+  /** Said plainly, because "keep going" could mean two different things. */
+  optionNotes: {
+    sameThing: (m: number) => `The same thing you just did, for ${m} more minutes.`,
+    oneMore: 'Same task, one step smaller.',
+    takeBreak: '5, 10 or 20 minutes. Or no timer at all.',
+    finishHere: 'Back home. This is already saved.',
+  },
+  explain: 'What do these do?',
   loggedNote: 'Saved to today. Only you can see it.',
 };
 
@@ -202,6 +213,8 @@ export const settings = {
   namePlaceholder: 'Optional',
   appearance: 'Appearance',
   theme: 'Theme',
+  colour: 'Colour',
+  colourNote: 'Changes the accent across the whole app.',
   reduceMotion: 'Reduce motion',
   reduceMotionNote: 'Fewer transitions and fades.',
   focus: 'Focus',
@@ -214,6 +227,9 @@ export const settings = {
   privacyNote:
     'Nudge works without an account. Your tasks, sessions and notes stay on this device. Nothing is uploaded, and there is no tracking or advertising.',
   about: 'About Nudge',
+  help: 'Help',
+  howItWorks: 'How Nudge works',
+  howItWorksNote: 'The five-minute loop, start to finish.',
   later: 'Later',
   clear: {
     title: 'Clear all local data?',
@@ -223,6 +239,71 @@ export const settings = {
     doneTitle: 'All clear.',
     doneBody: 'Nudge is back to its first launch.',
   },
+};
+
+export const howItWorks = {
+  title: 'How Nudge works',
+  intro: 'The whole app is one small loop. Here it is, start to finish.',
+  steps: [
+    {
+      title: 'Tell Nudge you’re stuck',
+      body: 'Home → “I’m stuck”. If even that feels like too much, “I’m staring at the wall” is quieter still.',
+    },
+    {
+      title: 'Say what you’re trying to do',
+      body: 'In your own words. “Study Physics”, “clean my room”, “that email I’ve been avoiding”. Vague is fine.',
+    },
+    {
+      title: 'Make it smaller',
+      body: 'Nudge turns it into possible first actions. “Make it even smaller” as many times as you like — there is no minimum size, and going smaller is never treated as giving up.',
+    },
+    {
+      title: 'One action, nothing else',
+      body: '“Your only job right now” holds a single step. Nothing starts until you tap “I’m doing it”.',
+    },
+    {
+      title: 'Five minutes',
+      body: 'A timer, a pause, and “I’m done” — which works from the first second. Leaving early still counts as starting.',
+    },
+    {
+      title: 'Then you decide',
+      body: 'When the time is up, nothing happens on its own. Nudge waits for you to pick.',
+    },
+  ],
+  afterTitle: 'What the choices at the end mean',
+  afterNote: 'This is the one place people expect something different from what happens.',
+  after: [
+    {
+      label: 'Keep going on this',
+      body: 'Stays on the thing you just did and starts the timer again. It does not move you on to a different task.',
+    },
+    {
+      label: 'Do one more tiny thing',
+      body: 'Same task, next step down. Nudge suggests a smaller follow-on action.',
+    },
+    {
+      label: 'Take a break',
+      body: 'A real break — 5, 10 or 20 minutes, or none. Coming back is a question, not a deadline.',
+    },
+    {
+      label: 'I’m done for now',
+      body: 'Back home. What you did is already saved to today.',
+    },
+  ],
+  restTitle: 'The rest of the app',
+  rest: [
+    { label: 'Today', body: 'Small things you did, and things you might do. Nothing turns red.' },
+    { label: 'Start', body: 'Skip the questions: pick something, pick a length, begin.' },
+    { label: 'History', body: 'What actually happened, grouped by day. No streaks, no scores.' },
+    { label: 'Settings', body: 'Your name, colours, light or dark, session length, and clearing everything.' },
+  ],
+  promisesTitle: 'Three things that stay true',
+  promises: [
+    'Nothing starts by itself, and nothing continues by itself.',
+    'Stopping early is not failure. Starting was the hard part.',
+    'Everything stays on this device.',
+  ],
+  cta: 'Got it',
 };
 
 export const sitWithMe = {

@@ -18,6 +18,8 @@ export type ButtonSize = 'lg' | 'md' | 'sm';
 
 export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> {
   title: string;
+  /** One quiet line under the label, for when a button could be misread. */
+  subtitle?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;
@@ -30,6 +32,7 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
 
 export function Button({
   title,
+  subtitle,
   variant = 'primary',
   size = 'lg',
   fullWidth = true,
@@ -59,11 +62,17 @@ export function Button({
   const height = size === 'lg' ? 58 : size === 'md' ? HIT_SIZE : 40;
   const paddingHorizontal = size === 'sm' ? theme.spacing.lg : theme.spacing.xl;
 
-  const palette: Record<ButtonVariant, { bg: string; border: string; tone: Parameters<typeof Text>[0]['tone'] }> = {
-    primary: { bg: theme.colors.accent, border: 'transparent', tone: 'onAccent' },
-    secondary: { bg: theme.colors.surface, border: theme.colors.lineStrong, tone: 'default' },
-    ghost: { bg: theme.colors.accentSoft, border: 'transparent', tone: 'accent' },
-    quiet: { bg: 'transparent', border: 'transparent', tone: 'muted' },
+  type Tone = Parameters<typeof Text>[0]['tone'];
+  const palette: Record<ButtonVariant, { bg: string; border: string; tone: Tone; subTone: Tone }> = {
+    primary: { bg: theme.colors.accent, border: 'transparent', tone: 'onAccent', subTone: 'onAccent' },
+    secondary: {
+      bg: theme.colors.surface,
+      border: theme.colors.lineStrong,
+      tone: 'default',
+      subTone: 'muted',
+    },
+    ghost: { bg: theme.colors.accentSoft, border: 'transparent', tone: 'accent', subTone: 'accent' },
+    quiet: { bg: 'transparent', border: 'transparent', tone: 'muted', subTone: 'subtle' },
   };
 
   const look = palette[variant];
@@ -92,7 +101,8 @@ export function Button({
         style={({ pressed }) => [
           styles.base,
           {
-            minHeight: height,
+            minHeight: subtitle ? height + 18 : height,
+            paddingVertical: subtitle ? theme.spacing.md : 0,
             paddingHorizontal,
             borderRadius: theme.radius.lg,
             backgroundColor: look.bg,
@@ -104,14 +114,21 @@ export function Button({
         ]}
       >
         {icon ? <View style={{ marginRight: theme.spacing.sm }}>{icon}</View> : null}
-        <Text
-          variant={size === 'sm' ? 'label' : 'subheading'}
-          tone={look.tone}
-          numberOfLines={2}
-          style={styles.label}
-        >
-          {title}
-        </Text>
+        <View style={styles.labels}>
+          <Text
+            variant={size === 'sm' ? 'label' : 'subheading'}
+            tone={look.tone}
+            numberOfLines={2}
+            style={styles.label}
+          >
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text variant="caption" tone={look.subTone} numberOfLines={2} style={styles.subtitle}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
       </Pressable>
     </Animated.View>
   );
@@ -125,5 +142,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  labels: { flexShrink: 1 },
   label: { textAlign: 'center' },
+  subtitle: { textAlign: 'center', marginTop: 3, opacity: 0.92 },
 });

@@ -21,6 +21,7 @@
     "lib/time.ts",
     "lib/id.ts",
     "lib/sessionTime.ts",
-    "types/**/*.ts"
+    "types/**/*.ts",
+    "constants/palette.ts"
   ]
 }

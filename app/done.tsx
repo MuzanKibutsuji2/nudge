@@ -84,10 +84,12 @@ export default function Done() {
             <View>
               <Button
                 title={copy.options.another(settings.defaultSessionMinutes)}
+                subtitle={copy.optionNotes.sameThing(settings.defaultSessionMinutes)}
                 onPress={() => again(settings.defaultSessionMinutes)}
               />
               <Button
                 title={copy.options.takeBreak}
+                subtitle={copy.optionNotes.takeBreak}
                 variant="secondary"
                 onPress={() => router.replace('/break')}
                 style={{ marginTop: theme.spacing.sm }}
@@ -103,16 +105,19 @@ export default function Done() {
             <View>
               <Button
                 title={copy.options.keepGoing}
+                subtitle={copy.optionNotes.sameThing(settings.defaultSessionMinutes)}
                 onPress={() => again(settings.defaultSessionMinutes)}
               />
               <Button
                 title={copy.options.oneMore}
+                subtitle={copy.optionNotes.oneMore}
                 variant="secondary"
                 onPress={oneMoreTinyThing}
                 style={{ marginTop: theme.spacing.sm }}
               />
               <Button
                 title={copy.options.takeBreak}
+                subtitle={copy.optionNotes.takeBreak}
                 variant="secondary"
                 onPress={() => router.replace('/break')}
                 style={{ marginTop: theme.spacing.sm }}
@@ -125,6 +130,14 @@ export default function Done() {
               />
             </View>
           )}
+
+          <Button
+            title={copy.explain}
+            variant="quiet"
+            size="sm"
+            onPress={() => router.push('/how-it-works')}
+            style={{ marginTop: theme.spacing.sm }}
+          />
 
           {linkedTask ? (
             <Button

@@ -1,101 +1,37 @@
 /**
  * Nudge design system.
  *
- * One accent colour, warm neutrals, generous spacing, soft edges.
+ * Warm neutrals, one swappable accent, generous spacing, soft edges.
  * Nothing in here should feel like a dashboard.
+ *
+ * Colours live in ./palette.ts (no react-native import) so they can be
+ * contrast-tested in plain node.
  */
 import { Platform, TextStyle, ViewStyle } from 'react-native';
 
-export type ColorScheme = 'light' | 'dark';
+import {
+  ACCENT_TOKENS,
+  DEFAULT_ACCENT,
+  buildPalette,
+  isAccentId,
+  palettes,
+  type ColorScheme,
+  type Palette,
+} from './palette';
+import type { AccentId } from '../types/settings';
 
-export interface Palette {
-  /** App background. */
-  bg: string;
-  /** Cards and raised surfaces. */
-  surface: string;
-  /** Quieter surface for grouped rows / chips. */
-  surfaceAlt: string;
-  /** Recessed surface, e.g. inputs. */
-  surfaceSunken: string;
-  /** Background used by Wall Mode and the focus timer. */
-  calmBg: string;
-
-  text: string;
-  textMuted: string;
-  textSubtle: string;
-  /** Text that sits on top of the accent colour. */
-  onAccent: string;
-
-  line: string;
-  lineStrong: string;
-
-  accent: string;
-  accentSoft: string;
-  accentSoftText: string;
-
-  /** Gentle "this happened" colour. Never used alone to convey meaning. */
-  positive: string;
-  warm: string;
-
-  overlay: string;
-  shadowColor: string;
-}
-
-const light: Palette = {
-  bg: '#FBF8F4',
-  surface: '#FFFFFF',
-  surfaceAlt: '#F3EEE7',
-  surfaceSunken: '#F1EBE2',
-  calmBg: '#EFEAE2',
-
-  // Contrast checked against bg / surface / surfaceAlt / calmBg:
-  // text 13.8:1, textMuted 6.2:1, textSubtle 4.8:1 — all above WCAG AA.
-  text: '#221E1A',
-  textMuted: '#5C544D',
-  textSubtle: '#6E655D',
-  onAccent: '#FFFFFF',
-
-  line: '#EBE3D9',
-  lineStrong: '#D6CABA',
-
-  accent: '#2E6B5E',
-  accentSoft: '#E4EFEB',
-  accentSoftText: '#275A4F',
-
-  positive: '#35705A',
-  warm: '#9A5A2A',
-
-  overlay: 'rgba(34, 30, 26, 0.38)',
-  shadowColor: '#2A231B',
-};
-
-const dark: Palette = {
-  bg: '#131210',
-  surface: '#1C1A17',
-  surfaceAlt: '#24211C',
-  surfaceSunken: '#17150F',
-  calmBg: '#0E0D0B',
-
-  text: '#F2EDE6',
-  textMuted: '#A79E95',
-  textSubtle: '#948B83',
-  onAccent: '#0E1F1A',
-
-  line: '#2B2722',
-  lineStrong: '#3A352E',
-
-  accent: '#7BC4AE',
-  accentSoft: '#1E2B27',
-  accentSoftText: '#9BD7C4',
-
-  positive: '#7BC4AE',
-  warm: '#D6A077',
-
-  overlay: 'rgba(0, 0, 0, 0.55)',
-  shadowColor: '#000000',
-};
-
-export const palettes: Record<ColorScheme, Palette> = { light, dark };
+export {
+  ACCENT_TOKENS,
+  DEFAULT_ACCENT,
+  buildPalette,
+  isAccentId,
+  mix,
+  palettes,
+  type AccentDefinition,
+  type AccentTokens,
+  type ColorScheme,
+  type Palette,
+} from './palette';
 
 export const spacing = {
   xs: 4,
@@ -191,6 +127,7 @@ export const MAX_CONTENT_WIDTH = 560;
 
 export interface Theme {
   scheme: ColorScheme;
+  accent: AccentId;
   colors: Palette;
   spacing: typeof spacing;
   radius: typeof radius;
@@ -199,10 +136,12 @@ export interface Theme {
   motion: typeof motion;
 }
 
-export function buildTheme(scheme: ColorScheme): Theme {
-  const colors = palettes[scheme];
+export function buildTheme(scheme: ColorScheme, accent: AccentId = DEFAULT_ACCENT): Theme {
+  const safeAccent = isAccentId(accent) ? accent : DEFAULT_ACCENT;
+  const colors = buildPalette(scheme, safeAccent);
   return {
     scheme,
+    accent: safeAccent,
     colors,
     spacing,
     radius,
