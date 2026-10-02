@@ -6,7 +6,10 @@
  *   npx expo export --platform web --output-dir dist
  *   node tests/e2e/website.mjs
  */
-import { check, distHas, finish, launch, readPage, section } from './harness.mjs';
+import { basePath, check, distHas, finish, launch, readPage, section } from './harness.mjs';
+
+/** "" for a root domain, "/nudge" for a GitHub Pages project site. */
+const BASE = basePath();
 
 /** Skip onboarding so each run starts in the app proper. */
 const SETTINGS = JSON.stringify({
@@ -82,6 +85,11 @@ check('theme colour, dark', index.includes('content="#131210"'));
 check('web app manifest', index.includes('rel="manifest"'));
 check('home-screen icon', index.includes('rel="apple-touch-icon"'));
 check('favicon', index.includes('rel="icon"'));
+check(
+  'assets resolve for however this build is deployed',
+  index.includes(`src="${BASE}/_expo/static/`),
+  BASE || '(root)'
+);
 check('works without JavaScript enough to explain itself', index.includes('<noscript>'));
 check('no-JS copy stays honest about privacy', index.includes('Nothing is sent anywhere'));
 
@@ -116,7 +124,11 @@ await desktop.tap('Today');
 await desktop.waitFor('Small things I did');
 check('the rail navigates', desktop.has('Small things I did'));
 check('the tab title follows', desktop.window.document.title === 'Today · Nudge', desktop.window.document.title);
-check('the address bar follows', desktop.window.location.pathname === '/today', desktop.window.location.pathname);
+check(
+  'the address bar follows',
+  desktop.window.location.pathname === `${BASE}/today`,
+  desktop.window.location.pathname
+);
 
 await desktop.tap('History');
 await desktop.waitFor('What helps you start');
@@ -149,7 +161,7 @@ section('Deep links survive a refresh');
 const deep = await launch({
   storage,
   page: 'history.html',
-  url: 'http://localhost/history',
+  url: `http://localhost${BASE}/history`,
   viewport: { width: 1320, height: 900 },
 });
 await deep.waitFor('What helps you start');
@@ -161,7 +173,7 @@ deep.close();
 const settingsPage = await launch({
   storage,
   page: 'settings.html',
-  url: 'http://localhost/settings',
+  url: `http://localhost${BASE}/settings`,
   viewport: { width: 414, height: 896 },
 });
 await settingsPage.waitFor('Appearance');

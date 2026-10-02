@@ -34,6 +34,16 @@ export function distHas(file) {
   return fs.existsSync(path.join(DIST, file));
 }
 
+/**
+ * The site can be built for a subpath ("/nudge" on GitHub Pages project
+ * sites), which prefixes every URL in the HTML. Read it back off the build so
+ * the tests work against either kind.
+ */
+export function basePath() {
+  const match = readPage('index.html').match(/src="([^"]*)_expo\/static\//);
+  return match ? match[1].replace(/\/$/, '') : '';
+}
+
 function hidden(node) {
   const style = node.ownerDocument.defaultView.getComputedStyle(node);
   if (style.display === 'none' || style.visibility === 'hidden') return true;
@@ -153,8 +163,9 @@ export async function launch({
     node.getAttribute('src')
   );
   for (const src of sources) {
-    const file = path.join(DIST, src.replace(/^\//, ''));
-    window.eval(fs.readFileSync(file, 'utf8'));
+    // Strip any deploy-time base path: the file still sits at dist/_expo/...
+    const relative = src.includes('_expo/') ? src.slice(src.indexOf('_expo/')) : src.replace(/^\//, '');
+    window.eval(fs.readFileSync(path.join(DIST, relative), 'utf8'));
   }
 
   const api = {
