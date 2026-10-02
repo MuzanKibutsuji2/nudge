@@ -27,15 +27,27 @@ QR code in the terminal. The app runs on the device, offline, as soon as the bun
 
 ```bash
 npm run ios        # iOS simulator
-npm run android    # Android emulator
+npm run android    # Android device or emulator
 npm run web        # browser (shown inside a phone frame)
 npm test           # unit tests for the pure logic
 npm run typecheck  # tsc --noEmit
 npm run export:web && npm run test:e2e   # the whole journey, end to end
 ```
 
-To ship a real build: `npx eas build -p ios` / `-p android`. The app has no native custom
-code, so a managed build is all it needs.
+### Building the Android app
+
+The native Android project is committed in [`android/`](android/) — open that folder in
+Android Studio and press Run. **[ANDROID.md](ANDROID.md)** has the whole path: SDK setup,
+first build, making an APK you can hand to someone, and publishing to Play.
+
+```bash
+npm run android:apk     # installable release APK
+npm run android:regen   # rebuild android/ after an app.json change
+```
+
+`android/` is generated from `app.json`, not hand-written, so edit the config rather than
+the native files. For iOS, or to build without Android Studio, `npx eas build -p ios` /
+`-p android` builds on Expo's machines instead (`eas.json` is set up).
 
 ---
 

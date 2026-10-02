@@ -7,10 +7,11 @@
  *   npm run export:web
  *   npm run preview:snapshot
  *
- * Asset paths that contain a node_modules segment are rewritten to _vendor,
- * because both .gitignore and the sandbox cleaner drop anything under a folder
- * with that name. serve-web.mjs maps the requests back, so the bundle itself is
- * copied byte for byte.
+ * Path segments with names that tooling tends to delete — node_modules, build,
+ * dist and friends — are prefixed with an underscore, because .gitignore rules
+ * and sandbox cleaners match those names at any depth. serve-web.mjs applies
+ * the same rename to incoming requests, so the bundle is copied byte for byte
+ * and still finds its assets.
  *
  * Entirely disposable: delete web-preview/ any time and regenerate it.
  */
@@ -25,23 +26,29 @@ const TARGET = path.join(ROOT, 'web-preview');
 /** The only icon family the app imports. */
 const KEEP_FONT = /Feather\./;
 
+/**
+ * Directory names that get deleted or ignored by something: npm, git, build
+ * caches, sandbox cleaners. Kept in sync with the same list in serve-web.mjs.
+ */
+const RISKY_DIRECTORIES = new Set([
+  'node_modules', 'build', 'dist', 'out', 'target', 'coverage', 'bin', 'obj',
+  'tmp', 'temp', 'cache', 'logs', 'vendor',
+]);
+
+/** One path segment, renamed if its name is the kind of thing tools delete. */
+export function safeSegment(name) {
+  return RISKY_DIRECTORIES.has(name.toLowerCase()) ? `_${name}` : name;
+}
+
 if (!fs.existsSync(path.join(SOURCE, 'index.html'))) {
   console.error('Nothing to copy. Build it first:\n\n  npm run export:web\n');
   process.exit(1);
 }
 
-/** node_modules → _vendor, at any depth. */
-export function safePath(relative) {
-  return relative
-    .split(path.sep)
-    .map((segment) => (segment === 'node_modules' ? '_vendor' : segment))
-    .join(path.sep);
-}
-
 function copy(from, to) {
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
     const source = path.join(from, entry.name);
-    const target = path.join(to, entry.name === 'node_modules' ? '_vendor' : entry.name);
+    const target = path.join(to, safeSegment(entry.name));
 
     if (entry.isDirectory()) {
       copy(source, target);

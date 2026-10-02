@@ -37,8 +37,12 @@ yarn-error.*
 *.tsbuildinfo
 
 # generated native folders
+# android/ is committed so the project opens in Android Studio straight after
+# cloning. It is still generated — `npm run android:regen` rebuilds it from
+# app.json. See ANDROID.md.
 /ios
-/android
+/android/.gradle
+/android/local.properties
 
 # tests
 .test-build/

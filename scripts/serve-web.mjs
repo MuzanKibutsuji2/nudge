@@ -11,10 +11,10 @@
  * Dependency free on purpose, and it binds to 0.0.0.0 so it also works from
  * inside a container or a remote sandbox.
  *
- * It serves dist/ when that exists. Some sandboxes wipe directories named
- * dist/, so a copy left in web-preview/ is used as a fallback — handy for
- * showing the app without reinstalling and rebuilding first. Neither folder is
- * committed; both are disposable.
+ * It serves dist/ when that exists, and otherwise falls back to the committed
+ * copy in web-preview/ (see scripts/snapshot-preview.mjs), so the app can be
+ * shown without reinstalling and rebuilding first. Both folders are generated;
+ * neither is source.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -26,6 +26,15 @@ const CANDIDATES = [path.join(ROOT, 'dist'), path.join(ROOT, 'web-preview')];
 const DIST = CANDIDATES.find((dir) => fs.existsSync(path.join(dir, 'index.html'))) ?? CANDIDATES[0];
 const PORT = Number(process.env.PORT ?? 8080);
 const HOST = process.env.HOST ?? '0.0.0.0';
+
+/** Mirrors RISKY_DIRECTORIES in scripts/snapshot-preview.mjs. */
+const RISKY_DIRECTORIES = new Set([
+  'node_modules', 'build', 'dist', 'out', 'target', 'coverage', 'bin', 'obj',
+  'tmp', 'temp', 'cache', 'logs', 'vendor',
+]);
+
+const safeSegment = (name) =>
+  RISKY_DIRECTORIES.has(name.toLowerCase()) ? `_${name}` : name;
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -60,11 +69,11 @@ http
       file = path.join(DIST, pathname);
       if (!file.startsWith(DIST)) file = path.join(DIST, 'index.html');
 
-      // The snapshot build stores vendored assets under _vendor/ (see
-      // scripts/snapshot-preview.mjs); the bundle still asks for node_modules/.
-      if (!fs.existsSync(file) && pathname.includes('/node_modules/')) {
-        const vendored = path.join(DIST, pathname.split('/node_modules/').join('/_vendor/'));
-        if (vendored.startsWith(DIST) && fs.existsSync(vendored)) file = vendored;
+      // The snapshot build underscores directory names that tools delete (see
+      // scripts/snapshot-preview.mjs). The bundle still asks for the originals.
+      if (!fs.existsSync(file)) {
+        const renamed = path.join(DIST, ...pathname.split('/').map(safeSegment));
+        if (renamed.startsWith(DIST) && fs.existsSync(renamed)) file = renamed;
       }
 
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
