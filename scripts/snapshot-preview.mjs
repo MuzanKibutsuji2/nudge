@@ -7,6 +7,11 @@
  *   npm run export:web
  *   npm run preview:snapshot
  *
+ * Asset paths that contain a node_modules segment are rewritten to _vendor,
+ * because both .gitignore and the sandbox cleaner drop anything under a folder
+ * with that name. serve-web.mjs maps the requests back, so the bundle itself is
+ * copied byte for byte.
+ *
  * Entirely disposable: delete web-preview/ any time and regenerate it.
  */
 import fs from 'node:fs';
@@ -25,10 +30,18 @@ if (!fs.existsSync(path.join(SOURCE, 'index.html'))) {
   process.exit(1);
 }
 
+/** node_modules → _vendor, at any depth. */
+export function safePath(relative) {
+  return relative
+    .split(path.sep)
+    .map((segment) => (segment === 'node_modules' ? '_vendor' : segment))
+    .join(path.sep);
+}
+
 function copy(from, to) {
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
     const source = path.join(from, entry.name);
-    const target = path.join(to, entry.name);
+    const target = path.join(to, entry.name === 'node_modules' ? '_vendor' : entry.name);
 
     if (entry.isDirectory()) {
       copy(source, target);

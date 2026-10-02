@@ -59,6 +59,14 @@ http
       const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
       file = path.join(DIST, pathname);
       if (!file.startsWith(DIST)) file = path.join(DIST, 'index.html');
+
+      // The snapshot build stores vendored assets under _vendor/ (see
+      // scripts/snapshot-preview.mjs); the bundle still asks for node_modules/.
+      if (!fs.existsSync(file) && pathname.includes('/node_modules/')) {
+        const vendored = path.join(DIST, pathname.split('/node_modules/').join('/_vendor/'));
+        if (vendored.startsWith(DIST) && fs.existsSync(vendored)) file = vendored;
+      }
+
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
         const indexed = path.join(file, 'index.html');
         // Client-side routing: unknown paths fall back to the app shell.
