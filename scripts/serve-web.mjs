@@ -1,9 +1,9 @@
 /**
  * Serves the exported web build (dist/) as a single-page app.
  *
- * Nudge is a phone app — this is just a quick way to click through it in a
- * browser without a device or a simulator. On web the app renders inside a
- * phone frame (components/DeviceFrame.tsx).
+ * It mirrors what a static host (GitHub Pages, Netlify, Cloudflare) does:
+ * clean URLs served from the matching .html file, and an app-shell fallback
+ * for anything it doesn't recognise.
  *
  *   npm run export:web   # build dist/
  *   npm run serve        # http://localhost:8080
@@ -42,6 +42,7 @@ const TYPES = {
   '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -76,10 +77,17 @@ http
         if (renamed.startsWith(DIST) && fs.existsSync(renamed)) file = renamed;
       }
 
+      // Clean URLs: /today is served by today.html, /reset/room by
+      // reset/room.html. Static hosts do this for you; this server is only
+      // used locally, so it has to do it itself.
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) {
-        const indexed = path.join(file, 'index.html');
-        // Client-side routing: unknown paths fall back to the app shell.
-        file = fs.existsSync(indexed) ? indexed : path.join(DIST, 'index.html');
+        const candidates = [
+          `${file}.html`,
+          path.join(file, 'index.html'),
+          path.join(DIST, '404.html'),
+          path.join(DIST, 'index.html'),
+        ];
+        file = candidates.find((candidate) => fs.existsSync(candidate)) ?? candidates.at(-1);
       }
     } catch {
       file = path.join(DIST, 'index.html');

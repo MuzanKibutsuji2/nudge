@@ -1,0 +1,68 @@
+# Builds the site and publishes it to GitHub Pages on every push to main.
+#
+# One-time setup: repository Settings ▸ Pages ▸ Source = "GitHub Actions".
+# The site then lives at https://<user>.github.io/<repo>/
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish; queue at most one more.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build the site
+        run: npm run build
+        env:
+          # Project pages are served from /<repo>, so every asset URL needs
+          # that prefix. Delete both lines if you move to a custom domain.
+          EXPO_BASE_URL: /${{ github.event.repository.name }}
+          EXPO_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io
+
+      - name: End-to-end tests
+        run: npm run test:e2e
+
+      - name: Fallback for unknown paths
+        run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

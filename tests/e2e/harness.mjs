@@ -25,6 +25,15 @@ export function distExists() {
   return fs.existsSync(path.join(DIST, 'index.html'));
 }
 
+/** Read an exported page straight off disk, for checks on the HTML itself. */
+export function readPage(file) {
+  return fs.readFileSync(path.join(DIST, file), 'utf8');
+}
+
+export function distHas(file) {
+  return fs.existsSync(path.join(DIST, file));
+}
+
 function hidden(node) {
   const style = node.ownerDocument.defaultView.getComputedStyle(node);
   if (style.display === 'none' || style.visibility === 'hidden') return true;
@@ -54,12 +63,22 @@ function visibleText(node) {
   return out;
 }
 
-export async function launch({ storage = {}, url = 'http://localhost/' } = {}) {
+/**
+ * @param page     which exported HTML file to open, for deep-link tests
+ * @param viewport browser size, so the phone and desktop layouts can both be
+ *                 driven (jsdom defaults to 1024x768)
+ */
+export async function launch({
+  storage = {},
+  url = 'http://localhost/',
+  page = 'index.html',
+  viewport = null,
+} = {}) {
   if (!distExists()) {
     throw new Error('dist/ not found — run: npx expo export --platform web --output-dir dist');
   }
 
-  const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(DIST, page), 'utf8');
   const errors = [];
   const virtualConsole = new VirtualConsole();
   virtualConsole.on('jsdomError', (error) => {
@@ -79,6 +98,18 @@ export async function launch({ storage = {}, url = 'http://localhost/' } = {}) {
 
   const { window } = dom;
   for (const [key, value] of Object.entries(storage)) window.localStorage.setItem(key, value);
+
+  if (viewport) {
+    const { width, height = 820 } = viewport;
+    for (const [target, props] of [
+      [window, { innerWidth: width, innerHeight: height }],
+      [window.document.documentElement, { clientWidth: width, clientHeight: height }],
+    ]) {
+      for (const [key, value] of Object.entries(props)) {
+        Object.defineProperty(target, key, { value, configurable: true, writable: true });
+      }
+    }
+  }
 
   window.matchMedia =
     window.matchMedia ||

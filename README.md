@@ -2,58 +2,68 @@
 
 **small steps. no pressure.**
 
-A calm mobile app for the moment every student knows:
+A calm website for the moment every student knows:
 
 > "I know I need to do something, but I just sit there and can't make myself start."
 
 Nudge doesn't track your productivity, rank your days, or tell you that you're falling
 behind. It has one job: get you from *"I can't start"* to *"okay, I'm doing one tiny thing."*
 
-Built with React Native + Expo + TypeScript. No account, no backend, no network calls.
-Everything lives on your phone.
+Built with Expo Router + React Native Web + TypeScript, and exported as a static site —
+every screen is a real page with its own URL. No account, no backend, no network calls, no
+analytics. Everything lives in your browser's own storage, on your device.
 
 ---
 
-## Run it on your phone
+## Run it
 
 ```bash
 npm install
-npx expo start
+npm run dev          # http://localhost:8081 — live reload
 ```
 
-Install **Expo Go** ([iOS](https://apps.apple.com/app/expo-go/id982107779) /
-[Android](https://play.google.com/store/apps/details?id=host.exp.exponent)), then scan the
-QR code in the terminal. The app runs on the device, offline, as soon as the bundle loads.
+Or build the real thing and serve it the way a host would:
 
 ```bash
-npm run ios        # iOS simulator
-npm run android    # Android device or emulator
-npm run web        # browser (shown inside a phone frame)
-npm test           # unit tests for the pure logic
-npm run typecheck  # tsc --noEmit
-npm run export:web && npm run test:e2e   # the whole journey, end to end
+npm run build        # static site into dist/
+npm run serve        # http://localhost:8080
 ```
-
-### Building the Android app
-
-The native Android project is committed in [`android/`](android/) — open that folder in
-Android Studio and press Run. **[ANDROID.md](ANDROID.md)** has the whole path: SDK setup,
-first build, making an APK you can hand to someone, and publishing to Play.
 
 ```bash
-npm run android:apk     # installable release APK
-npm run android:regen   # rebuild android/ after an app.json change
+npm test             # unit tests for the pure logic
+npm run typecheck    # tsc --noEmit
+npm run test:e2e     # the whole journey, end to end, against the built site
 ```
 
-`android/` is generated from `app.json`, not hand-written, so edit the config rather than
-the native files. For iOS, or to build without Android Studio, `npx eas build -p ios` /
-`-p android` builds on Expo's machines instead (`eas.json` is set up).
+### Deploying
+
+Pushing to `main` builds and publishes the site through GitHub Actions
+(`.github/workflows/deploy.yml`). The one-time setup is **Settings ▸ Pages ▸ Source =
+GitHub Actions**; after that every push updates
+`https://<user>.github.io/<repo>/`.
+
+Project pages live under a subpath, so the workflow passes `EXPO_BASE_URL=/<repo>` and
+every asset URL is rewritten to match. On a root domain — Netlify, Vercel, Cloudflare
+Pages, your own nginx — drop that variable and point the host at `dist/`. Nothing is
+server-side: it is HTML, JavaScript and fonts.
+
+### On a phone
+
+It is a website, so it just works in a mobile browser — the layout switches to the
+one-column, bottom-tab arrangement below 900px. Chrome and Safari also offer
+**Add to Home Screen**, which installs it as a standalone app via `public/manifest.webmanifest`
+— and a small service worker keeps it running with no connection after the first visit.
 
 ---
 
 ## What's inside
 
-**Five tabs.** Home · Today · **Start** (the raised centre button) · History · Settings.
+**Five destinations.** Home · Today · **Start** · History · Settings.
+
+On a wide screen they sit in a quiet rail down the left. Below 900px the rail becomes the
+bottom bar, with Start raised in the middle. Same five pages, same URLs, two shapes — and
+the focused flows (a timer, a breathing circle, Quiet Mode) drop the navigation entirely at
+both sizes, because that is the point of them.
 
 **Onboarding** (5 short screens, skippable) — a hello, what Nudge is for, your name if you
 feel like sharing it, what's on your plate, and "You're ready."
@@ -147,8 +157,9 @@ Opt-in, clearly labelled **Coming later**, and honest that nothing is connected 
 ## Architecture
 
 ```
-app/                      expo-router file routes
-  _layout.tsx             providers, splash, root ErrorBoundary
+app/                      expo-router file routes — one URL per file
+  +html.tsx                 the HTML shell: metadata, link previews, base CSS
+  _layout.tsx             providers, page title, root ErrorBoundary
   index.tsx               launch gate → onboarding or home
   onboarding.tsx          5 steps in one screen, local step state
   (tabs)/                 home · today · start · history · settings
@@ -180,10 +191,19 @@ lib/
   unclutter.ts            Brain Unclutter's in-memory scratch space (never persisted)
   taskUtils.ts  time.ts  phrasing.ts  feedback.ts  navigation.ts  keepAwake.ts  id.ts
   theme.tsx               theme context, follows the system when set to System
+  layout.ts               the one breakpoint: rail on wide screens, tab bar on narrow
+  webTitle.ts             per-route browser titles, theme-colour sync
+
+public/                   copied verbatim into the build
+  manifest.webmanifest    installable web app
+  sw.js                   offline cache: network-first pages, cache-first hashed assets
+  robots.txt  .nojekyll
 
 types/                    Task, FocusSession, CheckIn, Settings
 tests/                    node:test suites over the pure logic
-  e2e/                    jsdom harness + smoke test against the exported build
+  e2e/                    jsdom harness + three suites against the exported site:
+                          smoke (the journey), reset (the overwhelmed path),
+                          website (pages, titles, metadata, both layouts, deep links)
 scripts/make-brand-assets.mjs   regenerates the icon set from the logo geometry
 ```
 
@@ -229,23 +249,31 @@ The unit tests cover the parts where correctness actually matters: the shrinking
 including pauses and overruns, pattern summaries, phrasing, and a contrast audit that fails
 the build if any accent drops below WCAG AA on any surface in either scheme.
 
-The end-to-end tests drive the real exported bundle in jsdom — the same JavaScript that runs
-on a phone. `tests/e2e/smoke.mjs` covers the main journey: fresh install → onboarding →
+The end-to-end tests drive the real exported site in jsdom — the same JavaScript a visitor
+runs. `tests/e2e/smoke.mjs` covers the main journey: fresh install → onboarding →
 Home → I'm stuck → feeling → task → make it smaller twice → one action → 5-minute session →
 pause → finish early → Today → History → switch palette → relaunch with saved data.
 `tests/e2e/reset.mjs` covers the overwhelmed path: panic button → each of the three doors →
 breathing controls → noticing prompts → writing, sorting, editing and deleting thoughts →
 one thought into one tiny step → a one-minute session → every exit route, plus reduced
-motion, and assertions that private text never reaches storage.
+motion, and assertions that private text never reaches storage. `tests/e2e/website.mjs`
+covers the web itself: every route exported as its own page, per-page browser titles,
+description and link-preview tags, the manifest and service worker, the navigation rail at
+1320px, the tab bar at 414px, and deep links (opening `/history` or `/settings` cold) at
+both sizes.
 
 ---
 
 ## Privacy
 
 Nothing leaves the device. There is no server, no account, no analytics SDK, no ad SDK, no
-crash reporter, no tracking identifier. What you type stays in your phone's local storage,
-and **Settings → Privacy → Clear all local data** removes all of it in one step (with a
-confirmation, defaulting to keeping your data).
+crash reporter, no tracking identifier, and no cookies. The site is static files; what you
+type stays in your browser's local storage on your own machine, and **Settings → Privacy →
+Clear all local data** removes all of it in one step (with a confirmation, defaulting to
+keeping your data).
+
+The only network request the site ever makes is the one that loads the site. After that it
+works with the connection off.
 
 ---
 

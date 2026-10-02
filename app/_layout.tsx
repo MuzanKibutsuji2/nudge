@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
+import Head from 'expo-router/head';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { DeviceFrame } from '../components/DeviceFrame';
 import { ErrorFallback } from '../components/ErrorFallback';
 import { AppProvider, useAppState } from '../lib/store';
 import { ThemeProvider, useTheme } from '../lib/theme';
+import { usePageTitle, useThemeColor } from '../lib/webTitle';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash control is best effort; never block launch on it.
@@ -35,32 +36,31 @@ function RootShell() {
   const theme = useTheme();
   const { hydrated } = useAppState();
 
+  const title = usePageTitle();
+  useThemeColor(theme.colors.bg);
+
   useEffect(() => {
     if (hydrated) SplashScreen.hideAsync().catch(() => {});
   }, [hydrated]);
 
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    // Keep the page behind the phone frame calm and scroll-free.
-    const style = document.createElement('style');
-    style.textContent = `
-      html, body, #root { height: 100%; margin: 0; overflow: hidden; }
-      body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-      input, textarea { outline: none; }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
+  // Rendered in both branches: the prerendered HTML has no stored state, so
+  // this is the only pass that ever runs when a page is exported.
+  const head = (
+    <Head>
+      {/* Only the title: expo-router's Head drops other tags on web, so the
+          rest of the metadata lives in app/+html.tsx. */}
+      <title>{title}</title>
+    </Head>
+  );
 
   if (!hydrated) {
     // Nothing to show yet — a flash of the right colour beats a flash of white.
-    return <View style={{ flex: 1, backgroundColor: theme.colors.bg }} />;
+    return <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>{head}</View>;
   }
 
   return (
-    <DeviceFrame>
+    <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
+      {head}
       <StatusBar style={theme.scheme === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
@@ -110,6 +110,6 @@ function RootShell() {
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
       </Stack>
-    </DeviceFrame>
+    </View>
   );
 }
