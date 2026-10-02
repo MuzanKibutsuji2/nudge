@@ -88,6 +88,13 @@ export default function Done() {
                 onPress={() => again(settings.defaultSessionMinutes)}
               />
               <Button
+                title={copy.options.oneMore}
+                subtitle={copy.optionNotes.oneMore}
+                variant="secondary"
+                onPress={oneMoreTinyThing}
+                style={{ marginTop: theme.spacing.sm }}
+              />
+              <Button
                 title={copy.options.takeBreak}
                 subtitle={copy.optionNotes.takeBreak}
                 variant="secondary"

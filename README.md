@@ -46,7 +46,8 @@ code, so a managed build is all it needs.
 **Onboarding** (5 short screens, skippable) — a hello, what Nudge is for, your name if you
 feel like sharing it, what's on your plate, and "You're ready."
 
-**Home** — a greeting, *"What do you need right now?"*, and three doors:
+**Home** — a greeting, a prominent **"I'm overwhelmed"** button, *"What do you need right
+now?"*, and three doors:
 
 | Door | What happens |
 | --- | --- |
@@ -71,6 +72,34 @@ Below that: today's small wins, a quiet "I'm staring at the wall" link, and the 
 7. **Finished either way.** Stop early and it says *"That's okay. You started."* Run the
    clock out and it says *"You made it through five minutes."* Then three equal choices:
    keep going, take a break, or be done. Nothing continues on its own.
+
+**"I'm overwhelmed" → Reset** — the fast lane for the moment everything is too loud. One
+tap, no questions, no confirmation dialog, nothing resembling a deadline, a count or a
+statistic on screen. It offers three doors and you can walk out of any of them:
+
+| Door | What it is |
+| --- | --- |
+| Help me settle. | **Reset Room** — a soft breathing circle (start / pause / resume / stop, or hide it entirely, and it holds still if your device asks for reduced motion) and a set of optional noticing prompts you can skip one by one. No counting, no breath-holding, no rhythm to keep up with. |
+| Help me untangle my thoughts. | **Brain Unclutter** — one box, one prompt: *"What's taking up space in your mind right now?"* Continue, Clear and Exit all work on an empty box. Afterwards you can optionally sort lines into NOW / LATER / NOT SURE, edit them, delete them, leave them alone, or skip sorting. |
+| I just need a moment. | **Quiet Mode** — three lines, no timer, no transitions, no suggestions. |
+
+Leaving any activity never assumes you're ready to work: you get four equal choices
+(untangle, one tiny step, a break, or stop), and the app never asks how you feel now.
+
+**The tiniest possible restart** — offered after Reset, reachable on its own, and never
+automatic. Pick an existing task (shown as a plain title — no deadline, no size, no
+"overdue") or type anything; Nudge suggests one tiny action you can **edit, shrink, replace
+or skip**; then start a one- or five-minute session, or no timer at all. Afterwards: keep
+going, make the next step smaller, take a break, or finish — *"That's okay. You can come
+back whenever you're ready."*
+
+Brain Unclutter text lives in memory only (`lib/unclutter.ts`) and is never written to
+storage. A thought becomes a task only if you tick *"Also keep this on my task list"*, which
+is off by default and goes through the normal task system.
+
+Behind a quiet link on the Reset screen there's one more page: if something feels
+seriously wrong, it says plainly that Nudge isn't medical care and points at a person or a
+local emergency number. It is not shown by default — ordinary stress is not an emergency.
 
 **Wall Mode** — for when even the stuck flow is too much. The UI strips back to one line at
 a time: *I'm here. You don't have to do anything yet. Let's just sit for a second.* Then
@@ -116,12 +145,14 @@ app/                      expo-router file routes
   wall.tsx  break.tsx     wall mode, break timer
   task/[id].tsx           task detail + "make this smaller"
   how-it-works.tsx        the instructions
+  reset/                  index (I'm overwhelmed) · room · quiet · unclutter ·
+                          sort · restart · tiny · after · support
   add-task.tsx  clear-data.tsx  sit-with-me.tsx  +not-found.tsx
 
 components/               ~20 reusable pieces: Button, Card, ChoiceCard, MoodCard,
                           Timer, TaskCard, Screen, Header, Text, Chip, EmptyState,
-                          SegmentedControl, PalettePicker, FadeIn, Logo, TabBar,
-                          ErrorFallback…
+                          SegmentedControl, PalettePicker, BreathingCircle, FadeIn,
+                          Logo, TabBar, ErrorFallback…
 
 constants/
   palette.ts              neutrals + the six accents, contrast-tested in plain node
@@ -134,6 +165,7 @@ lib/
   microActions.ts         the deterministic "make it smaller" engine
   sessionTime.ts          pure timer maths (elapsed / remaining / resumable)
   analytics.ts            local, descriptive "what helps you start" patterns
+  unclutter.ts            Brain Unclutter's in-memory scratch space (never persisted)
   taskUtils.ts  time.ts  phrasing.ts  feedback.ts  navigation.ts  keepAwake.ts  id.ts
   theme.tsx               theme context, follows the system when set to System
 
@@ -175,8 +207,8 @@ Delete a task you're focusing on and the session keeps its own copy of the title
 ## Testing
 
 ```bash
-npm test                                 # 31 unit tests
-npm run export:web && npm run test:e2e   # ~90 end-to-end checks
+npm test                                 # 42 unit tests
+npm run export:web && npm run test:e2e   # ~190 end-to-end checks, two suites
 ```
 
 The unit tests cover the parts where correctness actually matters: the shrinking ladder
@@ -185,10 +217,14 @@ The unit tests cover the parts where correctness actually matters: the shrinking
 including pauses and overruns, pattern summaries, phrasing, and a contrast audit that fails
 the build if any accent drops below WCAG AA on any surface in either scheme.
 
-The end-to-end test drives the real exported bundle in jsdom — the same JavaScript that runs
-on a phone — through the full journey: fresh install → onboarding → Home → I'm stuck →
-feeling → task → make it smaller twice → one action → 5-minute session → pause → finish
-early → Today → History → switch palette → relaunch with saved data.
+The end-to-end tests drive the real exported bundle in jsdom — the same JavaScript that runs
+on a phone. `tests/e2e/smoke.mjs` covers the main journey: fresh install → onboarding →
+Home → I'm stuck → feeling → task → make it smaller twice → one action → 5-minute session →
+pause → finish early → Today → History → switch palette → relaunch with saved data.
+`tests/e2e/reset.mjs` covers the overwhelmed path: panic button → each of the three doors →
+breathing controls → noticing prompts → writing, sorting, editing and deleting thoughts →
+one thought into one tiny step → a one-minute session → every exit route, plus reduced
+motion, and assertions that private text never reaches storage.
 
 ---
 
@@ -206,6 +242,7 @@ confirmation, defaulting to keeping your data).
 These were constraints, not decoration — every string in `constants/copy.ts` follows them:
 
 - Never shame, guilt, pressure, diagnose, or play therapist.
+- No forced breathing, journaling or timers — every activity can be skipped or left.
 - No streaks, scores, rankings, comparisons, or "you're falling behind."
 - Stopping early is never failure. *"That's okay. You started."*
 - Selections are not diagnoses; the app never explains what your feeling "means".

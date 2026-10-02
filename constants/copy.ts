@@ -345,3 +345,181 @@ export function greeting(date: Date, name?: string): string {
   if (!trimmed) return 'Hey.';
   return `${part}, ${trimmed}`;
 }
+
+/* ------------------------------------------------------------------ */
+/* Reset: the "I'm overwhelmed" path                                   */
+/* ------------------------------------------------------------------ */
+
+export const reset = {
+  /** The entry point on Home. */
+  entry: "I'm overwhelmed",
+  entryNote: 'A quieter screen. No questions asked.',
+
+  title: "Hey. Let's take this one moment at a time.",
+  subtitle: "You don't have to solve everything right now.",
+  options: {
+    settle: { title: 'Help me settle.', body: 'Something slow to follow, or just something to notice.' },
+    untangle: { title: 'Help me untangle my thoughts.', body: "Get what's crowding your head out of it." },
+    moment: { title: 'I just need a moment.', body: 'No exercises. Nothing to do.' },
+  },
+  leave: 'Leave',
+  leaveNote: 'You can leave at any point. Nothing here is saved.',
+  supportLink: 'If this feels bigger than stress',
+};
+
+export const resetRoom = {
+  eyebrow: 'RESET ROOM',
+  tabs: { breath: 'Breathing', notice: 'Noticing' },
+  done: "I'm done here",
+
+  breath: {
+    title: 'Nothing to get right here.',
+    subtitle: "Follow the circle if it helps. Ignore it if it doesn't.",
+    in: 'in',
+    out: 'out',
+    start: 'Start the circle',
+    pause: 'Pause',
+    resume: 'Resume',
+    stop: 'Stop',
+    hide: 'Hide the circle',
+    show: 'Show the circle',
+    hidden: 'The circle is hidden. You can still sit here as long as you like.',
+    reducedMotion: 'Your device asks for less movement, so the circle stays still.',
+    note: 'Breathe however you normally would. No counting, no holding.',
+  },
+
+  notice: {
+    title: 'One thing at a time.',
+    subtitle: 'Only if you want to. You can skip any of these.',
+    prompts: [
+      'Notice three things you can see.',
+      'Notice the surface holding you up.',
+      'Listen for one sound around you.',
+      'Find something nearby that feels familiar.',
+      'Notice the temperature of the air.',
+    ],
+    next: 'Done that',
+    skip: 'Skip this one',
+    end: "That's all of them. Nothing else to do.",
+    again: 'Start them again',
+  },
+};
+
+export const quietMode = {
+  eyebrow: 'QUIET MODE',
+  lines: [
+    "It's okay to pause.",
+    'No tasks. No exercises. No questions.',
+    'You can stay here for a moment, or leave whenever you want.',
+  ],
+  leave: 'Leave',
+  done: "I'm ready",
+};
+
+export const resetAfter = {
+  title: 'No rush.',
+  subtitle: "You don't have to be ready for anything.",
+  stepTitle: 'That was a step.',
+  stepSubtitle: 'Whatever happens next is up to you.',
+  options: {
+    untangle: 'Untangle my thoughts',
+    tiny: 'Try one tiny step',
+    continueStep: 'Continue',
+    smaller: 'Make the next step smaller',
+    takeBreak: 'Take a break',
+    finish: 'Finish for now',
+  },
+  notes: {
+    untangle: "Write down what's crowding your head.",
+    tiny: 'Something small, chosen by you.',
+    continueStep: 'Stay on the same thing a little longer.',
+    smaller: 'Same thing, one step down.',
+    takeBreak: '5, 10 or 20 minutes. Or no timer at all.',
+    finish: "That's okay. You can come back whenever you're ready.",
+  },
+};
+
+export const unclutter = {
+  eyebrow: 'BRAIN UNCLUTTER',
+  title: "What's taking up space in your mind right now?",
+  subtitle: 'One thing per line, or one long ramble. Both are fine.',
+  placeholder: 'Whatever is in there…',
+  privacy: "This stays on this screen. It isn't saved anywhere unless you choose to keep something.",
+  continue: 'Continue',
+  clear: 'Clear',
+  exit: 'Exit',
+  cleared: 'Cleared.',
+
+  sort: {
+    title: 'Want to sort these?',
+    subtitle: 'Only if it helps. Leaving them as they are is fine.',
+    counts: {
+      now: 'NOW',
+      later: 'LATER',
+      unsure: 'NOT SURE',
+      none: 'Unsorted',
+    },
+    hints: {
+      now: 'Something you think needs attention soon.',
+      later: 'Something that can wait.',
+      unsure: "Something you don't have to decide right now.",
+    },
+    edit: 'Edit',
+    save: 'Save',
+    remove: 'Delete',
+    add: 'Add another thought',
+    addPlaceholder: 'One more thing…',
+    skip: 'Skip sorting',
+    act: 'Turn one into something I can do',
+    pick: 'Which one?',
+    cancelPick: 'Never mind',
+    done: "I'm done here",
+    empty: "Nothing written down. That's fine too.",
+  },
+};
+
+export const restart = {
+  title: 'Would you like to make the next step smaller?',
+  subtitle: 'Only if you want to. None of this is expected of you.',
+  options: {
+    start: 'Help me start something small.',
+    takeBreak: "I'd rather take a break.",
+    done: "I'm done for now.",
+  },
+  finishNote: "That's okay. You can come back whenever you're ready.",
+};
+
+export const tinyStep = {
+  pickTitle: 'What would you be starting?',
+  pickSubtitle: 'Pick one, or write something. Neither is a commitment.',
+  yourTasks: 'Already on your list',
+  somethingElse: 'Something else',
+  placeholder: 'e.g. Chemistry revision',
+  continue: 'Continue',
+
+  actionTitle: 'How about this?',
+  actionNote: 'A suggestion, not an instruction. Change it to whatever actually fits.',
+  label: 'Your tiny step',
+  smaller: 'Make it smaller',
+  floor: "That's about as small as it gets — and it still counts.",
+  saveTask: 'Also keep this on my task list',
+  saveTaskNote: 'Off by default. Nothing is saved unless you ask.',
+  startOne: 'Start one minute',
+  startFive: 'Start five minutes',
+  noTimer: "I'll just do it — no timer",
+  skip: 'Skip this',
+  back: 'Pick something else',
+};
+
+export const support = {
+  link: 'If this feels bigger than stress',
+  title: "If something feels seriously wrong, don't sit with it alone.",
+  body: "Nudge is a small tool for starting things. It isn't medical care, it can't tell how you are, and it can't help in an emergency.",
+  unwell:
+    'If you feel seriously unwell, or you might be in danger, please tell someone who can actually be there — a friend, a family member, someone at home, a doctor.',
+  emergency:
+    'For urgent help, your local emergency number works: 112 in India and across the EU, 999 in the UK, 911 in the US and Canada.',
+  ordinary:
+    "And if this is ordinary stress — the usual kind — that's okay too. Nothing here says you have to use any of it.",
+  back: 'Back',
+};

@@ -11,7 +11,7 @@ import { Logo } from '../../components/Logo';
 import { Screen } from '../../components/Screen';
 import { Text } from '../../components/Text';
 import { WinRow } from '../../components/WinRow';
-import { home } from '../../constants/copy';
+import { home, reset } from '../../constants/copy';
 import { greeting } from '../../constants/copy';
 import { tap } from '../../lib/feedback';
 import { useActions, useAppState } from '../../lib/store';
@@ -91,6 +91,47 @@ export default function Home() {
           </Card>
         </FadeIn>
       ) : null}
+
+      <FadeIn delay={70} style={{ marginTop: theme.spacing.xl }}>
+        <Pressable
+          onPress={() => {
+            tap();
+            router.push('/reset');
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={reset.entry}
+          accessibilityHint="Opens a calmer screen straight away"
+          style={({ pressed }) => [
+            styles.panic,
+            {
+              backgroundColor: theme.colors.accentSoft,
+              borderColor: theme.colors.accent,
+              borderRadius: theme.radius.xl,
+              paddingVertical: theme.spacing.lg,
+              paddingHorizontal: theme.spacing.lg,
+              opacity: pressed ? 0.85 : 1,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.panicIcon,
+              { backgroundColor: theme.colors.accent, borderRadius: theme.radius.pill },
+            ]}
+          >
+            <Feather name="life-buoy" size={18} color={theme.colors.onAccent} />
+          </View>
+          <View style={{ flex: 1, marginLeft: theme.spacing.lg }}>
+            <Text variant="subheading" tone="accent">
+              {reset.entry}
+            </Text>
+            <Text variant="caption" tone="muted" style={{ marginTop: 2 }}>
+              {reset.entryNote}
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={18} color={theme.colors.accent} />
+        </Pressable>
+      </FadeIn>
 
       <View style={{ marginTop: theme.spacing['2xl'] }}>
         <FadeIn delay={80}>
@@ -213,6 +254,8 @@ export default function Home() {
 const styles = StyleSheet.create({
   brandRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   help: { flexDirection: 'row', alignItems: 'center' },
+  panic: { flexDirection: 'row', alignItems: 'center', borderWidth: 1.5 },
+  panicIcon: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
   resumeActions: { flexDirection: 'row', alignItems: 'center' },
   wallRow: {
     flexDirection: 'row',

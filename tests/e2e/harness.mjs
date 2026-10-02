@@ -212,10 +212,11 @@ export async function launch({ storage = {}, url = 'http://localhost/' } = {}) {
       );
       const input = inputs[0];
       if (!input) throw new Error(`type: no visible input${placeholder ? ` for “${placeholder}”` : ''}`);
-      const setter = Object.getOwnPropertyDescriptor(
-        window.HTMLInputElement.prototype,
-        'value'
-      ).set;
+      const prototype =
+        input.tagName.toLowerCase() === 'textarea'
+          ? window.HTMLTextAreaElement.prototype
+          : window.HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
       setter.call(input, text);
       input.dispatchEvent(new window.Event('input', { bubbles: true }));
       input.dispatchEvent(new window.Event('change', { bubbles: true }));

@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test \".test-build/tests/*.test.js\"",
     "export:web": "expo export --platform web --output-dir dist",
-    "test:e2e": "node tests/e2e/smoke.mjs",
+    "test:e2e": "node tests/e2e/smoke.mjs && node tests/e2e/reset.mjs",
     "serve": "node scripts/serve-web.mjs",
     "preview": "npm run export:web && npm run serve"
   },

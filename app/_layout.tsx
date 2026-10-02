@@ -92,6 +92,18 @@ function RootShell() {
           name="clear-data"
           options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
         />
+        <Stack.Screen name="reset/index" options={{ animation: 'fade' }} />
+        <Stack.Screen name="reset/room" options={{ animation: 'fade' }} />
+        <Stack.Screen name="reset/quiet" options={{ animation: 'fade' }} />
+        <Stack.Screen name="reset/unclutter" />
+        <Stack.Screen name="reset/sort" />
+        <Stack.Screen name="reset/restart" options={{ animation: 'fade' }} />
+        <Stack.Screen name="reset/tiny" />
+        <Stack.Screen name="reset/after" options={{ animation: 'fade' }} />
+        <Stack.Screen
+          name="reset/support"
+          options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        />
         <Stack.Screen name="sit-with-me" />
         <Stack.Screen
           name="how-it-works"
