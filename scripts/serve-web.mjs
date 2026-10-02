@@ -10,6 +10,11 @@
  *
  * Dependency free on purpose, and it binds to 0.0.0.0 so it also works from
  * inside a container or a remote sandbox.
+ *
+ * It serves dist/ when that exists. Some sandboxes wipe directories named
+ * dist/, so a copy left in web-preview/ is used as a fallback — handy for
+ * showing the app without reinstalling and rebuilding first. Neither folder is
+ * committed; both are disposable.
  */
 import fs from 'node:fs';
 import http from 'node:http';
@@ -17,7 +22,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DIST = path.join(ROOT, 'dist');
+const CANDIDATES = [path.join(ROOT, 'dist'), path.join(ROOT, 'web-preview')];
+const DIST = CANDIDATES.find((dir) => fs.existsSync(path.join(dir, 'index.html'))) ?? CANDIDATES[0];
 const PORT = Number(process.env.PORT ?? 8080);
 const HOST = process.env.HOST ?? '0.0.0.0';
 
@@ -42,7 +48,7 @@ const TYPES = {
 };
 
 if (!fs.existsSync(path.join(DIST, 'index.html'))) {
-  console.error('No dist/index.html yet. Build it first:\n\n  npm run export:web\n');
+  console.error('No web build found. Build one first:\n\n  npm run export:web\n');
   process.exit(1);
 }
 
@@ -75,5 +81,7 @@ http
     }
   })
   .listen(PORT, HOST, () => {
-    console.log(`Nudge preview running on http://${HOST}:${PORT}`);
+    console.log(
+      `Nudge preview running on http://${HOST}:${PORT} (serving ${path.basename(DIST)}/)`
+    );
   });
