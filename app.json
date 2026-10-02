@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Nudge",
+    "slug": "nudge",
+    "description": "Small steps. No pressure. A calm companion for the moments when starting feels impossible.",
+    "version": "1.0.0",
+    "icon": "./assets/icon.png",
+    "scheme": "nudge",
+    "userInterfaceStyle": "automatic",
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
